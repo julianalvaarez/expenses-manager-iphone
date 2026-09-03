@@ -20,50 +20,23 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "FinCorp | Gestor de Gastos e Ingresos Corporativo",
+  title: "Mis Finanzas | Gestor de Gastos Personales",
   description:
-    "Plataforma empresarial avanzada para la gestión, auditoría y control de gastos e ingresos corporativos. Visualización por meses, reportes financieros y métricas en tiempo real.",
+    "Aplicación fácil y rápida para llevar el control de tus gastos e ingresos personales mes a mes.",
   keywords: [
-    "gestor de gastos",
-    "control de ingresos",
-    "finanzas corporativas",
-    "gestión financiera",
-    "auditoría empresarial",
+    "gestor de gastos personal",
+    "mis finanzas",
+    "control de ingresos y gastos",
+    "ahorro personal",
     "presupuesto mensual",
-    "FinCorp",
   ],
-  authors: [{ name: "FinCorp Enterprise Systems" }],
-  creator: "FinCorp",
-  publisher: "FinCorp",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
+  authors: [{ name: "Mis Finanzas" }],
   openGraph: {
-    title: "FinCorp | Gestor de Gastos e Ingresos Corporativo",
+    title: "Mis Finanzas | Gestor de Gastos Personales",
     description:
-      "Controla tus finanzas empresariales con análisis mensual detallado, métricas KPI en tiempo real y auditoría de transacciones.",
-    url: "https://fincorp.app",
-    siteName: "FinCorp Gestor Financiero",
+      "Controla tus gastos e ingresos personales con resumen mensual y seguimiento de ahorro.",
     locale: "es_ES",
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "FinCorp | Gestor de Gastos e Ingresos Corporativo",
-    description:
-      "Controla tus finanzas empresariales con análisis mensual detallado, métricas KPI en tiempo real y auditoría de transacciones.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
   },
 };
 
@@ -77,7 +50,7 @@ export default function RootLayout({
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
+      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950">
         {children}
       </body>
     </html>

@@ -12,19 +12,18 @@ import { TransactionModal } from '@/src/components/TransactionModal';
 import { DetailModal } from '@/src/components/DetailModal';
 import { DeleteConfirmModal } from '@/src/components/DeleteConfirmModal';
 import { Toast, ToastMessage } from '@/src/components/Toast';
-import { Sparkles, BarChart3, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 export default function Home() {
-  // State principal
+  // State principal (SIN MODIFICAR LÓGICA NI CONEXIÓN AL BACKEND)
   const [transacciones, setTransacciones] = useState<Transaccion[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
-  // Obtener la clave YYYY-MM del mes actual (ej: "2026-09")
   const currentMonthKey = useMemo(() => getMonthKey(new Date()), []);
 
-  // Filtros y Selección de Mes (Por defecto el mes actual como principal)
+  // Filtros y Selección de Mes (Mes actual por defecto)
   const [selectedMonth, setSelectedMonth] = useState<string>(currentMonthKey);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [tipoFilter, setTipoFilter] = useState<'todos' | TipoTransaccion>('todos');
@@ -65,14 +64,14 @@ export default function Home() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'No se pudieron obtener las transacciones');
+        throw new Error(data.error || 'No se pudieron obtener los datos');
       }
 
       setTransacciones(data.gastos || []);
     } catch (err: any) {
-      console.error('Error al obtener gastos:', err);
-      setFetchError(err.message || 'Error de conexión con la API.');
-      addToast('error', 'Error al cargar los datos del servidor.');
+      console.error('Error al obtener datos:', err);
+      setFetchError(err.message || 'Error de conexión con el servidor.');
+      addToast('error', 'Error al cargar los datos.');
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -108,12 +107,12 @@ export default function Home() {
         throw new Error(data.error || 'No se pudo guardar el registro');
       }
 
-      addToast('success', `${formData.tipo === 'ingreso' ? 'Ingreso' : 'Gasto'} registrado correctamente.`);
+      addToast('success', `${formData.tipo === 'ingreso' ? 'Ingreso' : 'Gasto'} agregado.`);
       await fetchTransacciones(true);
       return true;
     } catch (err: any) {
       console.error('Error al guardar:', err);
-      addToast('error', err.message || 'No se pudo guardar la transacción.');
+      addToast('error', err.message || 'No se pudo guardar.');
       return false;
     }
   };
@@ -133,10 +132,10 @@ export default function Home() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'No se pudo eliminar la transacción');
+        throw new Error(data.error || 'No se pudo eliminar el registro');
       }
 
-      addToast('success', 'Registro eliminado correctamente.');
+      addToast('success', 'Movimiento eliminado.');
       setItemToDelete(null);
       if (selectedDetailItem?.id === itemToDelete.id) {
         setSelectedDetailItem(null);
@@ -144,7 +143,7 @@ export default function Home() {
       await fetchTransacciones(true);
     } catch (err: any) {
       console.error('Error al eliminar:', err);
-      addToast('error', err.message || 'No se pudo eliminar el registro.');
+      addToast('error', err.message || 'No se pudo eliminar.');
     } finally {
       setIsDeleting(false);
     }
@@ -170,7 +169,6 @@ export default function Home() {
   // -------------------------------------------------------------
   // CÁLCULOS Y DERIVADOS POR MES
   // -------------------------------------------------------------
-  // Extraer lista de meses únicos presentes en las transacciones
   const availableMonths = useMemo(() => {
     const set = new Set<string>();
     transacciones.forEach((t) => {
@@ -180,7 +178,6 @@ export default function Home() {
     return Array.from(set);
   }, [transacciones]);
 
-  // Estadísticas rápidas por mes
   const monthStats = useMemo(() => {
     const stats: Record<string, { count: number; balance: number }> = {};
     transacciones.forEach((t) => {
@@ -194,7 +191,6 @@ export default function Home() {
     return stats;
   }, [transacciones]);
 
-  // Categorías disponibles para filtro
   const availableCategories = useMemo(() => {
     const set = new Set<string>();
     transacciones.forEach((t) => {
@@ -203,27 +199,22 @@ export default function Home() {
     return Array.from(set).sort();
   }, [transacciones]);
 
-  // Transacciones filtradas por Mes, Tipo, Búsqueda, Categoría y Ordenamiento
   const filteredTransacciones = useMemo(() => {
     return transacciones
       .filter((t) => {
-        // Filtro por Mes
         if (selectedMonth !== 'ALL') {
           const tMonthKey = getMonthKey(t.fecha);
           if (tMonthKey !== selectedMonth) return false;
         }
 
-        // Filtro por Tipo
         if (tipoFilter !== 'todos' && t.tipo !== tipoFilter) {
           return false;
         }
 
-        // Filtro por Categoría
         if (categoriaFilter && t.categoria !== categoriaFilter) {
           return false;
         }
 
-        // Filtro por Búsqueda
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase().trim();
           const inCategory = t.categoria.toLowerCase().includes(q);
@@ -251,7 +242,6 @@ export default function Home() {
       });
   }, [transacciones, selectedMonth, tipoFilter, categoriaFilter, searchQuery, sortBy]);
 
-  // Resumen Ejecutivo / KPI del Período Seleccionado
   const resumenPeriodo = useMemo<ResumenMes>(() => {
     let totalIngresos = 0;
     let totalGastos = 0;
@@ -259,7 +249,6 @@ export default function Home() {
     let cantidadGastos = 0;
     const gastosPorCat: Record<string, number> = {};
 
-    // Filtrar transacciones del mes seleccionado (sin los demás filtros de búsqueda/tipo) para mantener KPI exacto del mes
     const transaccionesDelMes = transacciones.filter((t) => {
       if (selectedMonth === 'ALL') return true;
       return getMonthKey(t.fecha) === selectedMonth;
@@ -279,7 +268,6 @@ export default function Home() {
     const balance = totalIngresos - totalGastos;
     const tasaAhorro = totalIngresos > 0 ? ((totalIngresos - totalGastos) / totalIngresos) * 100 : 0;
 
-    // Determinar Top Categoría de Gasto
     let topCategoriaGasto = '';
     let maxMonto = 0;
     Object.entries(gastosPorCat).forEach(([cat, amount]) => {
@@ -308,11 +296,11 @@ export default function Home() {
     setCategoriaFilter('');
   };
 
-  const periodoNombre = selectedMonth === 'ALL' ? 'Consolidado' : formatMonthKey(selectedMonth);
+  const periodoNombre = selectedMonth === 'ALL' ? 'Global' : formatMonthKey(selectedMonth);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white flex flex-col">
-      {/* Header / Navbar */}
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+      {/* Header Navbar */}
       <Navbar
         onOpenAddModal={() => setIsAddModalOpen(true)}
         onRefresh={() => fetchTransacciones(true)}
@@ -320,28 +308,28 @@ export default function Home() {
         totalCount={transacciones.length}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Error Banner en caso de fallar conexión */}
+      {/* Main Content Area (Layout personal limpio y centrado) */}
+      <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-6">
+        {/* Banner de error de conexión */}
         {fetchError && (
-          <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-300 text-xs flex items-center justify-between shadow-lg">
+          <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-300 text-xs flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
               <span>{fetchError}</span>
             </div>
             <button
               onClick={() => fetchTransacciones(true)}
-              className="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 rounded-lg font-bold text-white transition-all cursor-pointer"
+              className="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 rounded-lg text-white text-xs font-semibold cursor-pointer"
             >
               Reintentar
             </button>
           </div>
         )}
 
-        {/* KPICards (Metricas Financieras Ejecutivas) */}
+        {/* KPICards (Resumen personal simple) */}
         <KPICards resumen={resumenPeriodo} periodoNombre={periodoNombre} />
 
-        {/* MonthSelector (Selección de Meses con Mes Actual como Principal) */}
+        {/* MonthSelector (Selector de meses con mes actual como principal) */}
         <MonthSelector
           availableMonths={availableMonths}
           selectedMonth={selectedMonth}
@@ -350,7 +338,7 @@ export default function Home() {
           monthStats={monthStats}
         />
 
-        {/* Search & Filters */}
+        {/* Filtros simples */}
         <TransactionFilters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -365,22 +353,14 @@ export default function Home() {
           hasActiveFilters={hasActiveFilters}
         />
 
-        {/* Table / List Header Title */}
-        <div className="flex items-center justify-between mb-3 px-1">
-          <div className="flex items-center space-x-2">
-            <BarChart3 className="w-4 h-4 text-indigo-400" />
-            <h3 className="text-sm font-bold text-white tracking-wide">
-              Historial de Movimientos ({filteredTransacciones.length})
-            </h3>
-          </div>
-          {hasActiveFilters && (
-            <span className="text-xs text-indigo-400">
-              Filtros aplicados en {periodoNombre}
-            </span>
-          )}
+        {/* Lista de Transacciones */}
+        <div className="flex items-center justify-between mb-2 px-1 text-xs text-slate-400">
+          <span className="font-semibold text-slate-300">
+            Movimientos ({filteredTransacciones.length})
+          </span>
+          <span>{periodoNombre}</span>
         </div>
 
-        {/* Transaction Table / Card List */}
         <TransactionTable
           transacciones={filteredTransacciones}
           isLoading={isLoading}
@@ -411,12 +391,11 @@ export default function Home() {
         isDeleting={isDeleting}
       />
 
-      {/* Global Toasts Notification */}
       <Toast toasts={toasts} onDismiss={dismissToast} />
 
-      {/* Footer Corporativo */}
-      <footer className="mt-12 border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500">
-        <p>FinCorp Expense & Income Management Dashboard • {new Date().getFullYear()}</p>
+      {/* Footer sencillo */}
+      <footer className="mt-8 border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500">
+        <p>Mis Finanzas Personales</p>
       </footer>
     </div>
   );

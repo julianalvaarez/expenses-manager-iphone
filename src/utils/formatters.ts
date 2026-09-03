@@ -1,4 +1,4 @@
-// Formateador de Moneda en formato EUR / USD / ARS adaptable
+// Formateador de Moneda
 export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
     return new Intl.NumberFormat('es-ES', {
         style: 'currency',
@@ -8,7 +8,7 @@ export const formatCurrency = (amount: number, currency: string = 'USD'): string
     }).format(amount);
 };
 
-// Formateador de Fecha readable (ej: 03 de Septiembre, 2026 - 14:30)
+// Formateador de Fecha readable (ej: 03 Sep, 2026 - 14:30)
 export const formatDate = (dateIso: string): string => {
     try {
         const date = new Date(dateIso);
@@ -49,27 +49,25 @@ export const formatMonthKey = (monthKey: string): string => {
     return `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`;
 };
 
-// Categorías empresariales predeterminadas
+// Categorías personales predeterminadas
 export const CATEGORIAS_GASTOS = [
-    'Servicios y Suministros',
-    'Nómina y Salarios',
-    'Marketing y Publicidad',
-    'Software y Licencias',
-    'Infraestructura y Servidores',
-    'Viajes y Viáticos',
-    'Impuestos y Tasas',
-    'Mantenimiento u Oficina',
-    'Consultoría Externa',
+    'Comida y Mercado',
+    'Vivienda y Alquiler',
+    'Servicios (Luz, Agua, Gas)',
+    'Transporte y Gasolina',
+    'Entretenimiento y Ocio',
+    'Salud y Farmacia',
+    'Ropa y Compras',
+    'Suscripciones y Servicios',
+    'Educación y Cursos',
     'Otros Gastos',
 ];
 
 export const CATEGORIAS_INGRESOS = [
-    'Ventas de Productos',
-    'Servicios Profesionales',
-    'Suscripciones / SaaS',
-    'Inversiones y Dividendos',
-    'Consultoría y Asesoría',
-    'Reembolsos / Devoluciones',
-    'Subvenciones y Financiamiento',
+    'Sueldo / Salario',
+    'Ventas / Freelance',
+    'Inversiones',
+    'Regalos / Bonos',
+    'Reembolsos',
     'Otros Ingresos',
 ];
