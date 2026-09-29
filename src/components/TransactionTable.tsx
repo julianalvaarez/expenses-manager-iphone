@@ -11,6 +11,7 @@ interface TransactionTableProps {
     onViewDetail: (item: Transaccion) => void;
     onDeleteRequest: (item: Transaccion) => void;
     onOpenAddModal: () => void;
+    categoriaFilter?: string;
 }
 
 export const TransactionTable: React.FC<TransactionTableProps> = ({
@@ -19,7 +20,14 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
     onViewDetail,
     onDeleteRequest,
     onOpenAddModal,
+    categoriaFilter,
 }) => {
+    const totalGastadoCategoria = React.useMemo(() => {
+        if (!categoriaFilter) return 0;
+        return transacciones
+            .filter((t) => t.tipo === 'gasto')
+            .reduce((acc, t) => acc + t.monto, 0);
+    }, [transacciones, categoriaFilter]);
     if (isLoading) {
         return (
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center">
@@ -66,8 +74,8 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                             <div className="flex items-center space-x-3 min-w-0">
                                 <div
                                     className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${isIngreso
-                                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                                            : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                        : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
                                         }`}
                                 >
                                     {isIngreso ? (
@@ -123,6 +131,19 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                     );
                 })}
             </div>
+            {categoriaFilter && (
+                <div className="bg-slate-950/80 border-t border-slate-800 p-4 flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                        <span className="text-xs text-slate-400 font-medium">Total gastado en</span>
+                        <span className="px-2.5 py-0.5 rounded-lg bg-slate-800 text-xs font-semibold text-slate-200 border border-slate-700/80">
+                            {categoriaFilter}
+                        </span>
+                    </div>
+                    <span className="text-sm sm:text-base font-bold text-rose-400">
+                        {formatCurrency(totalGastadoCategoria)}
+                    </span>
+                </div>
+            )}
         </div>
     );
 };

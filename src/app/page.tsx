@@ -367,6 +367,7 @@ export default function Home() {
           onViewDetail={handleViewDetail}
           onDeleteRequest={setItemToDelete}
           onOpenAddModal={() => setIsAddModalOpen(true)}
+          categoriaFilter={categoriaFilter}
         />
       </main>
 
